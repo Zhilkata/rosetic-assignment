@@ -1,5 +1,3 @@
-using System.Runtime.InteropServices.ComTypes;
-using Microsoft.Playwright;
 using Microsoft.Playwright.MSTest;
 using RoseticTask.Models;
 
