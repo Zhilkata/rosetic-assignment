@@ -4,31 +4,31 @@ This is my solution for part of the Rosetic.AI QA Assignment.
 ## How to setup?
 Make sure you have .NET 8 installed on your local machine. Other dependencies are automatically handled, meaning that you only have to:
 - Clone this repo locally.
-- Run the "dotnet test" command.
+- Run the ```dotnet test``` command.
 
-Suggestion: utilize the full "dotnet test --settings:.runsettings --logger "console;verbosity=detailed".
+Suggestion: utilize the full ```dotnet test --settings:.runsettings --logger "console;verbosity=detailed``` command.
 
 ## Why this tech stack?
-I chose Playwright + MSTest because I'm not very familiar with the details of their usage, but have researched that they gain popularity and are maintained.
+I chose **Playwright** + **MSTest** because I'm not very familiar with the details of their usage, but have researched that they gain popularity and are maintained.
 As such, I used the opportunity to setup a project following the documentation, and utilize the tools provided for tests based on the strategy I provided with a separate document.
 
 ## What's inside?
 Main repo contains a showcase of multiple Playwright functionalities, such as:
-  - Event-driven way of writing tests
-  - Handling of alerts not part of the initial page context
-  - API Mocking alongside UI interaction
-  - General adherence to the Page Object Model pattern for locator and internal page logics
-  - GitHub Actions setup for automated test execution against branch activity
-  - Settings file with customizable parameters
-  - Basic test report export after each run
+  - **Event-driven** way of writing tests
+  - Handling of **alerts** not part of the initial page context
+  - **API Mocking** alongside UI interaction
+  - General adherence to the **Page Object Model** pattern for locator and internal page logics
+  - **GitHub Actions setup** for automated test execution against branch activity
+  - **Settings file** with customizable parameters
+  - **Basic test report** export after each run
 
 ---
 
 Repo contains several branches serving as comparison snapshots of different experiments and workflows. These being:
-- codegen - the initial project state with tests directly copy-pasted from Playwright's recorder
-- ai-improvement-suggestions - version of the current main branch "reimagined" by direct full-class rework from Claude Sonnet 4.5 Free
-- incremental-ai-improvements - version of the current main branch with only a single TODO test reworked with help from Claude Sonnet 4.5 Free
-- manual and github-actions-test left for history purposes
+- **_codegen_** - the initial project state with tests directly copy-pasted from Playwright's recorder
+- **_ai-improvement-suggestions_** - version of the current main branch "reimagined" by direct full-class rework from Claude Sonnet 4.5 Free
+- **_incremental-ai-improvements_** - version of the current main branch with only a single TODO test reworked with help from Claude Sonnet 4.5 Free
+- **_manual_** and **_github-actions-test_** left for history purposes
 
 The idea is to show what happens in practice when utilizing different workflows, generate challenges and situations, and provide topics for discussion. 
 
