@@ -5,127 +5,134 @@ namespace RoseticTask.Models;
 public class WaitlistPage
 {
     private readonly IPage _page;
+    
+    // Public property for dialog message verification
     public string? DialogMessage { get; private set; }
-    
-    private readonly ILocator _firstNameInput;
-    private readonly ILocator _lastNameInput;
-    private readonly ILocator _emailInput;
-    private readonly ILocator _nextButton;
 
-    private readonly ILocator _professionalButton;
-    
-    private readonly ILocator _industryDropdown;
-    private readonly ILocator _companyDropdown;
-    private readonly ILocator _jobDropdown;
-    private readonly ILocator _projectDropdown;
+    #region Locators - Step 1: Personal Information
+    private ILocator FirstNameInput => _page.Locator("#First-Name");
+    private ILocator LastNameInput => _page.Locator("#Last-Name");
+    private ILocator EmailInput => _page.Locator("#Email-Address");
+    private ILocator NextButton => _page.Locator("#Next-form");
+    #endregion
 
-    private readonly ILocator _projectTextbox;
+    #region Locators - Step 2: Professional Information
+    private ILocator ProfessionalButton => _page.GetByText("I Am A Professional");
+    private ILocator IndustryDropdown => _page.GetByLabel("Industry");
+    private ILocator CompanyDropdown => _page.GetByLabel("Company Size");
+    private ILocator JobDropdown => _page.GetByLabel("Job Function");
+    private ILocator ProjectDropdown => _page.GetByLabel("Current Or Future Project");
+    private ILocator ProjectTextbox => _page.Locator("#Describe-your-project");
+    #endregion
 
-    private readonly ILocator _updatesCheckbox;
-    private readonly ILocator _agreementCheckbox;
-
-    private readonly ILocator _joinWaitlistButton;
+    #region Locators - Step 3: Consent & Submission
+    private ILocator UpdatesCheckbox => _page.Locator("#communications-consent");
+    private ILocator AgreementCheckbox => _page.Locator("#Email-Consent");
+    private ILocator JoinWaitlistButton => _page.Locator("input[value='JOIN THE WAITLIST']");
+    #endregion
 
     public WaitlistPage(IPage page)
     {
         _page = page;
-        
-        _firstNameInput = page.Locator("#First-Name");
-        _lastNameInput = page.Locator("#Last-Name");
-        _emailInput = page.Locator("#Email-Address");
-        _nextButton = page.Locator("#Next-form");
-        
-        _professionalButton = page.GetByText("I Am A Professional");
-
-        _industryDropdown = page.GetByLabel("Industry");
-        _companyDropdown = page.GetByLabel("Company Size");
-        _jobDropdown = page.GetByLabel("Job Function");
-        _projectDropdown = page.GetByLabel("Current Or Future Project");
-        
-        _projectTextbox = page.Locator("#Describe-your-project");
-        
-        _updatesCheckbox = page.Locator("#communications-consent");
-        _agreementCheckbox = page.Locator("#Email-Consent");
-
-        _joinWaitlistButton = page.Locator("input[value='JOIN THE WAITLIST']");
-        
-        SetupDialogueHandler();
+        SetupDialogHandler();
     }
 
-    public async Task NavigateToAsync(string text)
+    #region Navigation
+    public async Task NavigateAsync(string url)
     {
-        await _page.GotoAsync(text);
+        await _page.GotoAsync(url);
+    }
+    #endregion
+
+    #region Step 1: Personal Information Actions
+    public async Task FillPersonalInformationAsync(string firstName, string lastName, string email)
+    {
+        await FirstNameInput.FillAsync(firstName);
+        await LastNameInput.FillAsync(lastName);
+        await EmailInput.FillAsync(email);
     }
 
-    public async Task FillFirstNameAsync(string text)
+    public async Task ProceedToNextStepAsync()
     {
-        await _firstNameInput.ClickAsync();
-        await _firstNameInput.FillAsync(text);
+        await NextButton.ClickAsync();
+    }
+    #endregion
+
+    #region Step 2: Professional Information Actions
+    public async Task SelectProfessionalTypeAsync()
+    {
+        await ProfessionalButton.ClickAsync();
     }
 
-    public async Task FillLastNameAsync(string text)
+    public async Task FillProfessionalDetailsAsync(
+        string industry, 
+        string companySize, 
+        string jobFunction)
     {
-        await _lastNameInput.ClickAsync();
-        await _lastNameInput.FillAsync(text);
+        await IndustryDropdown.SelectOptionAsync(industry);
+        await CompanyDropdown.SelectOptionAsync(companySize);
+        await JobDropdown.SelectOptionAsync(jobFunction);
     }
+
+    public async Task FillProjectInformationAsync(string projectType, string projectDescription)
+    {
+        await ProjectDropdown.SelectOptionAsync(projectType);
+        await ProjectTextbox.FillAsync(projectDescription);
+    }
+    #endregion
+
+    #region Step 3: Consent & Submission Actions
+    public async Task AcceptConsentsAsync(bool receiveUpdates = true, bool agreeToTerms = true)
+    {
+        if (receiveUpdates)
+            await UpdatesCheckbox.CheckAsync();
+        
+        if (agreeToTerms)
+            await AgreementCheckbox.CheckAsync();
+    }
+
+    public async Task SubmitWaitlistFormAsync()
+    {
+        await JoinWaitlistButton.ClickAsync();
+    }
+    #endregion
+
+    #region High-Level Workflow Methods
+    public async Task CompleteWaitlistRegistrationAsync(
+        string firstName,
+        string lastName,
+        string email,
+        string industry,
+        string companySize,
+        string jobFunction,
+        string projectType,
+        string projectDescription,
+        bool receiveUpdates = true,
+        bool agreeToTerms = true)
+    {
+        await FillPersonalInformationAsync(firstName, lastName, email);
+        await ProceedToNextStepAsync();
+        await SelectProfessionalTypeAsync();
+        await FillProfessionalDetailsAsync(industry, companySize, jobFunction);
+        await FillProjectInformationAsync(projectType, projectDescription);
+        await AcceptConsentsAsync(receiveUpdates, agreeToTerms);
+        await SubmitWaitlistFormAsync();
+    }
+    #endregion
+
+    #region Verification Methods
+    public async Task<bool> IsNextButtonVisibleAsync() => 
+        await NextButton.IsVisibleAsync();
+
+    public async Task<bool> IsSubmitButtonEnabledAsync() => 
+        await JoinWaitlistButton.IsEnabledAsync();
     
-    public async Task FillEmailAsync(string text)
-    {
-        await _emailInput.ClickAsync();
-        await _emailInput.FillAsync(text);
-    }
+    public async Task<string> GetEmailValidationErrorAsync() =>
+        await _page.Locator("#Email-Address-error").TextContentAsync() ?? string.Empty;
+    #endregion
 
-    public async Task ClickNextButtonAsync()
-    {
-        await _nextButton.ClickAsync();
-    }
-
-    public async Task ClickProfessionalButtonAsync()
-    {
-        await _professionalButton.ClickAsync();
-    }
-
-    public async Task SelectIndustryDropdownOptionAsync(string text)
-    {
-        await _industryDropdown.SelectOptionAsync(text);
-    }
-
-    public async Task SelectCompanyDropdownOptionAsync(string text)
-    {
-        await _companyDropdown.SelectOptionAsync(text);
-    }
-    
-    public async Task SelectJobDropdownOptionAsync(string text)
-    {
-        await _jobDropdown.SelectOptionAsync(text);
-    }
-    public async Task SelectProjectDropdownOptionAsync(string text)
-    {
-        await _projectDropdown.SelectOptionAsync(text);
-    }
-    
-    public async Task FillProjectDescriptionAsync(string text)
-    {
-        await _projectTextbox.ClickAsync();
-        await _projectTextbox.FillAsync(text);
-    }
-
-    public async Task ClickUpdatesCheckBoxAsync()
-    {
-        await _updatesCheckbox.ClickAsync();
-    }
-
-    public async Task ClickAgreementCheckBoxAsync()
-    {
-        await _agreementCheckbox.ClickAsync();
-    }
-
-    public async Task ClickJoinWaitlistButtonAsync()
-    {
-        await _joinWaitlistButton.ClickAsync();
-    }
-
-    private void SetupDialogueHandler()
+    #region Private Helper Methods
+    private void SetupDialogHandler()
     {
         _page.Dialog += async (_, dialog) =>
         {
@@ -133,4 +140,5 @@ public class WaitlistPage
             await dialog.DismissAsync();
         };
     }
+    #endregion
 }
